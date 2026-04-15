@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clairo — Contract Packaging for CPG Brands</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment: #f5f2eb;
+      --parchment-dark: #ede9df;
+      --ink: #1c1c18;
+      --ink-light: #5a5a52;
+      --border: #d4d0c4;
+      --gold: #c8a96e;
+      --gold-dark: #7a6040;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 0.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(245, 242, 235, 0.96);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--ink);
+    }
+
+    .btn-nav {
+      background: var(--ink);
+      color: var(--parchment);
+      border: none;
+      border-radius: 99px;
+      padding: 10px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.15s;
+    }
+    .btn-nav:hover { opacity: 0.75; }
+
+    .hero {
+      background: var(--ink);
+      padding: 7rem 2.5rem 6rem;
+      position: relative;
+      overflow: hidden;
+      min-height: 580px;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .hero-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 58px;
+      line-height: 1.1;
+      color: var(--parchment);
+      letter-spacing: -1px;
+      margin-bottom: 1.5rem;
+      max-width: 600px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: #a09d94;
+      line-height: 1.7;
+      max-width: 460px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-cta {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--ink);
+      border: none;
+      border-radius: 99px;
+      padding: 14px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn-cta:hover { opacity: 0.85; }
+
+    .hero-note { font-size: 13px; color: #6b6860; }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 5rem;
+      padding-top: 2.5rem;
+      border-top: 0.5px solid #2e2e28;
+      flex-wrap: wrap;
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--parchment);
+    }
+
+    .stat-lbl { font-size: 12px; color: #6b6860; margin-top: 3px; }
+
+    .pain-section { background: var(--parchment); border-bottom: 0.5px solid var(--border); }
+    .pain-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      color: var(--gold-dark);
+      text-transform: uppercase;
+      margin-bottom: 3rem;
+    }
+
+    .pain-list { display: flex; flex-direction: column; }
+
+    .pain-item {
+      padding: 2rem 0;
+      border-top: 0.5px solid var(--border);
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .pain-item:last-child { border-bottom: 0.5px solid var(--border); }
+
+    .pain-num { font-size: 11px; color: var(--gold-dark); font-weight: 500; letter-spacing: 0.06em; padding-top: 6px; }
+
+    .pain-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    .pain-sub {
+      font-size: 14px;
+      color: var(--ink-light);
+      line-height: 1.65;
+      margin-top: 0.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-style: normal;
+    }
+
+    .services-section { background: #222220; border-bottom: 0.5px solid #2e2e28; }
+    .services-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
+    .services-inner .section-label { color: var(--gold); }
+
+    .section-heading-light {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 36px;
+      color: var(--parchment);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-sub-light { font-size: 16px; color: #7a7870; line-height: 1.7; max-width: 520px; margin-bottom: 3rem; }
+
+    .services { display: flex; flex-direction: column; border: 0.5px solid #2e2e28; border-radius: var(--radius); overflow: hidden; }
+
+    .service-item {
+      padding: 1.75rem 2rem;
+      border-bottom: 0.5px solid #2e2e28;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: start;
+    }
+    .service-item:last-child { border-bottom: none; }
+
+    .service-title { font-size: 15px; font-weight: 500; color: var(--parchment); margin-bottom: 0.35rem; }
+    .service-desc { font-size: 13px; color: #7a7870; line-height: 1.65; }
+    .service-arrow { font-size: 18px; color: #3a3a34; margin-top: 2px; }
+
+    .task-list { margin-top: 1.5rem; padding: 1.5rem 2rem; border: 0.5px solid #2e2e28; border-radius: var(--radius); }
+    .task-list-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .tasks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .task-pill { font-size: 12px; color: #7a7870; border: 0.5px solid #2e2e28; border-radius: 99px; padding: 5px 14px; }
+
+    .details { margin-top: 2rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+    .detail-item { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .detail-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); margin-top: 9px; flex-shrink: 0; }
+    .detail-text { font-size: 14px; color: #7a7870; line-height: 1.5; }
+    .detail-text strong { color: var(--parchment); font-weight: 500; }
+
+    .steps-section { background: var(--parchment-dark); border-bottom: 0.5px solid var(--border); }
+    .steps-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
+
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 36px;
+      color: var(--ink);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      margin-bottom: 3rem;
+    }
+
+    .steps { display: flex; flex-direction: column; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+      padding: 2.5rem 0;
+      border-top: 0.5px solid var(--border);
+    }
+    .step:last-child { border-bottom: 0.5px solid var(--border); }
+
+    .step-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 52px; color: var(--border); line-height: 1; }
+    .step-title { font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 0.4rem; padding-top: 4px; }
+    .step-desc { font-size: 14px; color: var(--ink-light); line-height: 1.65; }
+
+    .step-time {
+      font-size: 11px;
+      color: var(--gold-dark);
+      background: var(--parchment);
+      border: 0.5px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+      white-space: nowrap;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      margin-top: 6px;
+    }
+
+    .trust-section { background: var(--parchment); border-bottom: 0.5px solid var(--border); }
+    .trust-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
+
+    .guarantees {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .guarantee-item { background: var(--parchment); padding: 1.75rem 2rem; }
+    .guarantee-title { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 0.4rem; }
+    .guarantee-desc { font-size: 13px; color: var(--ink-light); line-height: 1.65; }
+
+    .form-section { background: var(--ink); border-bottom: 0.5px solid #2e2e28; }
+    .form-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; text-align: center; }
+    .form-inner .section-label { color: var(--gold); margin-bottom: 0.75rem; }
+
+    .form-heading {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 40px;
+      color: var(--parchment);
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
+      line-height: 1.15;
+    }
+
+    .form-sub { font-size: 15px; color: #6b6860; margin-bottom: 2.5rem; line-height: 1.7; }
+
+    .form-placeholder {
+      background: #222220;
+      border: 0.5px dashed #3a3a34;
+      border-radius: var(--radius);
+      padding: 4rem 2rem;
+      font-size: 14px;
+      color: #4a4a44;
+    }
+
+    footer { background: var(--ink); border-top: 0.5px solid #2e2e28; }
+    .footer-inner {
+      max-width: 720px; margin: 0 auto; padding: 2rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: var(--parchment); font-weight: 400; }
+    .footer-meta { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .footer-item { font-size: 13px; color: #4a4a44; }
+    .footer-email { font-size: 13px; color: #7a7870; text-decoration: none; border-bottom: 0.5px solid #3a3a34; padding-bottom: 1px; transition: color 0.15s; }
+    .footer-email:hover { color: var(--parchment); }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.25rem; }
+      .hero { padding: 4.5rem 1.25rem 4rem; min-height: 480px; }
+      .hero h1 { font-size: 36px; }
+      .hero-stats { gap: 2rem; }
+      .pain-inner, .services-inner, .steps-inner, .trust-inner, .form-inner { padding: 3.5rem 1.25rem; }
+      .section-heading, .section-heading-light, .form-heading { font-size: 28px; }
+      .guarantees { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 48px 1fr; }
+      .step-time { display: none; }
+      .step-num { font-size: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">clairo</div>
+    <a href="#get-started" class="btn-nav">Get a quote</a>
+  </nav>
+
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Contract packaging · San Mateo, CA</p>
+      <h1>Finally, a co-packer that says <em>yes</em> to small runs.</h1>
+      <p class="hero-sub">Hand-assembled kitting, gift sets, and custom packaging for food and specialty brands. No minimums. No setup fees.</p>
+      <div class="hero-actions">
+        <a href="#get-started" class="btn-cta">Tell us what you need</a>
+        <span class="hero-note">We'll get back to you within 48 hours</span>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">48 hrs</div>
+          <div class="stat-lbl">Quote turnaround</div>
+        </div>
+        <div>
+          <div class="stat-num">2–3 wks</div>
+          <div class="stat-lbl">Packing turnaround</div>
+        </div>
+        <div>
+          <div class="stat-num">Zero</div>
+          <div class="stat-lbl">Volume minimums</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pain-section">
+    <div class="pain-inner">
+      <p class="section-label">Sound familiar?</p>
+      <div class="pain-list">
+        <div class="pain-item">
+          <span class="pain-num">01</span>
+          <div>
+            <p class="pain-text">You called five co-packers. They all said your volume was too small.</p>
+            <p class="pain-sub">Most facilities won't touch anything under 10,000 units. You're not there yet and you shouldn't have to be.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <span class="pain-num">02</span>
+          <div>
+            <p class="pain-text">You don't need 10,000 units. You need a few hundred to test the market.</p>
+            <p class="pain-sub">Proving demand before scaling is just smart. We get that.</p>
+          </div>
+        </div>
+        <div class="pain-item">
+          <span class="pain-num">03</span>
+          <div>
+            <p class="pain-text">You've been hand-packing in your kitchen for six months. You're ready for the next step.</p>
+            <p class="pain-sub">There's a gap between doing it yourself and going fully industrial. We sit right in that gap.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-section">
+    <div class="services-inner">
+      <p class="section-label">What we do</p>
+      <h2 class="section-heading-light">Hand-assembled packaging, done right.</h2>
+      <p class="section-sub-light">We specialize in the jobs that are too small for big facilities and too fiddly for machines.</p>
+      <div class="services">
+        <div class="service-item">
+          <div>
+            <p class="service-title">Specialty food kitting and gift sets</p>
+            <p class="service-desc">Hot sauces, spice blends, premium snacks assembled into seasonal gift sets or DTC bundles. Tissue paper, stickers, custom inserts, multiple SKUs per box. Every configuration is different and that's fine.</p>
+          </div>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item">
+          <div>
+            <p class="service-title">Supplement and nutraceutical sample packs</p>
+            <p class="service-desc">Trial kits and sample packs for small supplement brands. Multiple SKUs, small runs, each unit hand-assembled. No one wants to spend their week stuffing envelopes. We do it so you don't have to.</p>
+          </div>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item">
+          <div>
+            <p class="service-title">Beauty and cosmetics subscription boxes</p>
+            <p class="service-desc">Monthly subscription boxes for indie beauty brands. Four to six items per box, rotating SKUs, low volumes. We handle the assembly so you can focus on building your brand.</p>
+          </div>
+          <span class="service-arrow">→</span>
+        </div>
+      </div>
+      <div class="task-list">
+        <p class="task-list-label">We also do</p>
+        <div class="tasks">
+          <span class="task-pill">Label application</span>
+          <span class="task-pill">Sticker placement</span>
+          <span class="task-pill">Bagging dry goods</span>
+          <span class="task-pill">Pick and place</span>
+          <span class="task-pill">Box and bag packing</span>
+          <span class="task-pill">Seasonal promo runs</span>
+          <span class="task-pill">Insert placement</span>
+        </div>
+      </div>
+      <div class="details">
+        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>No volume minimums.</strong> Start as small as you need.</p></div>
+        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>No setup fees.</strong> What we quote is what you pay.</p></div>
+        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>2 to 3 week turnaround</strong> on most runs.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="steps-section">
+    <div class="steps-inner">
+      <p class="section-label">How it works</p>
+      <h2 class="section-heading">Three steps from inquiry to delivery.</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>
+            <p class="step-title">Tell us about your product</p>
+            <p class="step-desc">Fill out the short form below. It takes about three minutes. Tell us what you're packaging, how many units you need, and when you need it. No lengthy RFQs, no back and forth to get started.</p>
+          </div>
+          <span class="step-time">3 min</span>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>
+            <p class="step-title">We send you a quote</p>
+            <p class="step-desc">Within 48 hours you'll get a per-unit price with no hidden fees. If we can't do the job for any reason, we'll tell you straight away and point you to someone who can.</p>
+          </div>
+          <span class="step-time">Within 48 hrs</span>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>
+            <p class="step-title">We pack, you ship</p>
+            <p class="step-desc">Send us your product and materials. We assemble everything to your spec and ship it back retail-ready. Most runs are done in two to three weeks.</p>
+          </div>
+          <span class="step-time">2 to 3 weeks</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust-section">
+    <div class="trust-inner">
+      <p class="section-label">Why trust us</p>
+      <h2 class="section-heading">We keep it simple and straight.</h2>
+      <div class="guarantees">
+        <div class="guarantee-item">
+          <p class="guarantee-title">Fixed pricing</p>
+          <p class="guarantee-desc">The price we quote is the price you pay. No surprise fees, no charges for setup or equipment.</p>
+        </div>
+        <div class="guarantee-item">
+          <p class="guarantee-title">Honest about fit</p>
+          <p class="guarantee-desc">If your job is not right for us, we'll tell you within 48 hours and point you to someone who can help. No stringing you along.</p>
+        </div>
+        <div class="guarantee-item">
+          <p class="guarantee-title">No long commitments</p>
+          <p class="guarantee-desc">Start with one run. See how it goes. We would rather earn your repeat business than lock you into anything.</p>
+        </div>
+        <div class="guarantee-item">
+          <p class="guarantee-title">Real people, real location</p>
+          <p class="guarantee-desc">We are based in San Mateo, CA. Bay Area brands are welcome to come visit before committing if that helps.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section" id="get-started">
+    <div class="form-inner">
+      <p class="section-label">Get started</p>
+      <h2 class="form-heading">Tell us what you need.</h2>
+      <p class="form-sub">Takes about three minutes. We'll get back to you within 48 hours.</p>
+      <!-- REPLACE the div below with your Google Form embed code -->
+      <div class="form-placeholder">Paste your Google Form embed code here</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">clairo</div>
+      <div class="footer-meta">
+        <span class="footer-item">San Mateo, CA</span>
+        <!-- REPLACE with your real email -->
+        <a class="footer-email" href="mailto:hello@clairo.com">hello@clairo.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    const GOLD = '#c8a96e';
+    const CREAM = '#f5f2eb';
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    const boxes = [];
+
+    function spawnBox(randomY) {
+      const size = 24 + Math.random() * 38;
+      return {
+        x: Math.random() * canvas.width,
+        y: randomY ? Math.random() * canvas.height : canvas.height + size,
+        size,
+        vy: 0.4 + Math.random() * 0.5,
+        vx: (Math.random() - 0.5) * 0.25,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.006,
+        alpha: 0.12 + Math.random() * 0.16,
+        color: Math.random() > 0.55 ? GOLD : CREAM,
+        type: Math.floor(Math.random() * 3)
+      };
+    }
+
+    function initBoxes() {
+      boxes.length = 0;
+      const count = Math.max(14, Math.floor(canvas.width / 55));
+      for (let i = 0; i < count; i++) boxes.push(spawnBox(true));
+    }
+
+    const conveyors = [0, 1, 2, 3].map(i => ({
+      yRatio: 0.18 + i * 0.2,
+      offset: Math.random() * 300,
+      speed: 0.55 + Math.random() * 0.5,
+      alpha: 0.055
+    }));
+
+    function drawShape(b) {
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.globalAlpha = b.alpha;
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = 1.2;
+      const s = b.size;
+
+      if (b.type === 0) {
+        ctx.strokeRect(-s/2, -s/2, s, s);
+        ctx.beginPath();
+        ctx.moveTo(-s/2, -s/2 + s*0.28);
+        ctx.lineTo(s/2, -s/2 + s*0.28);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, -s/2);
+        ctx.lineTo(0, -s/2 + s*0.28);
+        ctx.stroke();
+      } else if (b.type === 1) {
+        ctx.strokeRect(-s/2, -s/2, s, s);
+        ctx.beginPath();
+        ctx.moveTo(-s*0.15, -s/2);
+        ctx.lineTo(-s*0.15, s/2);
+        ctx.moveTo(s*0.15, -s/2);
+        ctx.lineTo(s*0.15, s/2);
+        ctx.stroke();
+      } else {
+        const w = s*0.46, h = s;
+        ctx.beginPath();
+        ctx.moveTo(-w*0.28, -h/2);
+        ctx.lineTo(w*0.28, -h/2);
+        ctx.lineTo(w*0.28, -h*0.34);
+        ctx.lineTo(w/2, -h*0.18);
+        ctx.lineTo(w/2, h/2);
+        ctx.lineTo(-w/2, h/2);
+        ctx.lineTo(-w/2, -h*0.18);
+        ctx.lineTo(-w*0.28, -h*0.34);
+        ctx.closePath();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const l of conveyors) {
+        l.offset += l.speed;
+        ctx.save();
+        ctx.globalAlpha = l.alpha;
+        ctx.strokeStyle = GOLD;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([10, 20]);
+        ctx.lineDashOffset = -l.offset;
+        ctx.beginPath();
+        ctx.moveTo(0, l.yRatio * canvas.height);
+        ctx.lineTo(canvas.width, l.yRatio * canvas.height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      for (let i = 0; i < boxes.length; i++) {
+        const b = boxes[i];
+        b.y -= b.vy;
+        b.x += b.vx;
+        b.rot += b.vr;
+        if (b.y < -b.size * 2) boxes[i] = spawnBox(false);
+        drawShape(b);
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('resize', () => { resize(); initBoxes(); });
+
+    resize();
+    initBoxes();
+    loop();
+  </script>
+
+</body>
+</html>
