@@ -608,22 +608,51 @@
     // while keeping all 4 visible on the belt at the start (spread across both sides).
     const START_X = [5, 15, -15, -5];
 
+    // Kraft paper canvas texture — grain + subtle corrugation lines
+    const ktc = document.createElement('canvas');
+    ktc.width = 512; ktc.height = 512;
+    const kctx = ktc.getContext('2d');
+    kctx.fillStyle = '#b87830';
+    kctx.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 7000; i++) {
+        const bright = Math.random() > 0.5;
+        kctx.fillStyle = `rgba(${bright?220:50},${bright?140:70},0,${Math.random()*0.09})`;
+        kctx.fillRect(Math.random()*512, Math.random()*512, 1+Math.random(), 1+Math.random());
+    }
+    for (let y = 0; y < 512; y += 5) {
+        kctx.fillStyle = `rgba(0,0,0,${0.016+Math.random()*0.022})`;
+        kctx.fillRect(0, y, 512, 1);
+    }
+    const kraftTex = new THREE.CanvasTexture(ktc);
+    kraftTex.wrapS = kraftTex.wrapT = THREE.RepeatWrapping;
+    kraftTex.repeat.set(2, 2);
+
     // Shared materials
-    const matSide = new THREE.MeshStandardMaterial({ color: 0xbe8238, roughness: 0.82, metalness: 0.0 });
-    const matTop  = new THREE.MeshStandardMaterial({ color: 0xd4a84a, roughness: 0.78, metalness: 0.0 });
-    const matBot  = new THREE.MeshStandardMaterial({ color: 0x946028, roughness: 0.92, metalness: 0.0 });
+    // matInside = dark interior shadow visible when lid opens
+    const matSide   = new THREE.MeshStandardMaterial({ map: kraftTex, color: 0xd49040, roughness: 0.85, metalness: 0.0 });
+    const matTop    = new THREE.MeshStandardMaterial({ map: kraftTex, color: 0xe0b058, roughness: 0.78, metalness: 0.0 });
+    const matBot    = new THREE.MeshStandardMaterial({                 color: 0x8a5520, roughness: 0.95, metalness: 0.0 });
+    const matInside = new THREE.MeshStandardMaterial({                 color: 0x1c0e04, roughness: 1.00, metalness: 0.0 });
+
     // BoxGeometry face order: +x, -x, +y (top), -y (bottom), +z (front), -z (back)
-    const bodyMats = [matSide, matSide, matTop, matBot, matSide, matSide];
-    const lidMats  = [matSide, matSide, matTop, matSide, matSide, matSide];
+    // Body:    top face (+y) = interior opening → matInside
+    // Lid flap: bottom face (-y) = interior underside → matInside
+    const bodyMats = [matSide, matSide, matInside, matBot, matSide, matSide];
+    const lidMats  = [matSide, matSide, matTop,    matInside, matSide, matSide];
 
     const tapeMat = new THREE.MeshStandardMaterial({
-        color: 0xf0e0a0, roughness: 0.5, metalness: 0,
-        transparent: true, opacity: 0.72
+        color: 0xfde8a0, roughness: 0.4, metalness: 0.05,
+        transparent: true, opacity: 0.85
     });
 
     const bodyGeo    = new THREE.BoxGeometry(BOX_W, BOX_H, BOX_D);
     const halfLidGeo = new THREE.BoxGeometry(BOX_W / 2, LID_T, BOX_D);
     const halfTapeGeo = new THREE.BoxGeometry(BOX_W / 2 * 0.28, 0.012, BOX_D);
+
+    // Edge line geometry — shared across all boxes
+    const bodyEdgeGeo = new THREE.EdgesGeometry(bodyGeo, 10);
+    const lidEdgeGeo  = new THREE.EdgesGeometry(halfLidGeo, 10);
+    const edgeMat     = new THREE.LineBasicMaterial({ color: 0x4a2808 });
 
     const boxes      = []; // THREE.Group — moved by belt animation
     const rayTargets = []; // body meshes — used for raycasting
@@ -636,6 +665,7 @@
         // Body
         const body = new THREE.Mesh(bodyGeo, bodyMats);
         body.castShadow = body.receiveShadow = true;
+        body.add(new THREE.LineSegments(bodyEdgeGeo, edgeMat));
         group.add(body);
         rayTargets.push(body);
 
@@ -656,6 +686,7 @@
         const leftFlap = new THREE.Mesh(halfLidGeo, lidMats);
         leftFlap.position.x = BOX_W / 4; // centre of half-flap, right of pivot
         leftFlap.castShadow = true;
+        leftFlap.add(new THREE.LineSegments(lidEdgeGeo, edgeMat));
         leftPivot.add(leftFlap);
 
         const leftTape = new THREE.Mesh(halfTapeGeo, tapeMat);
@@ -670,6 +701,7 @@
         const rightFlap = new THREE.Mesh(halfLidGeo, lidMats);
         rightFlap.position.x = -BOX_W / 4;
         rightFlap.castShadow = true;
+        rightFlap.add(new THREE.LineSegments(lidEdgeGeo, edgeMat));
         rightPivot.add(rightFlap);
 
         const rightTape = new THREE.Mesh(halfTapeGeo, tapeMat);
