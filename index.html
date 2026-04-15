@@ -1,683 +1,985 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clairo — Contract Packaging for CPG Brands</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>copacker — Contract Packaging for Growing Brands</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --parchment: #f5f2eb;
-      --parchment-dark: #ede9df;
-      --ink: #1c1c18;
-      --ink-light: #5a5a52;
-      --border: #d4d0c4;
-      --gold: #c8a96e;
-      --gold-dark: #7a6040;
-      --radius: 14px;
-      --radius-sm: 8px;
-    }
+        :root {
+            --black:      #080604;
+            --dark-mid:   #110e08;
+            --dark-warm:  #1e1a0e;
+            --white:      #f0e8d0;
+            --gray:       #9a8e70;
+            --light-gray: #2a2418;
+            --accent:     #c9a052;
+            --font:       'Inter', system-ui, -apple-system, sans-serif;
+        }
 
-    html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--parchment);
-      color: var(--ink);
-      font-size: 16px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
+        /* ── Floating background canvas ──────────────────── */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 0.5s ease;
+        }
 
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem 2.5rem;
-      border-bottom: 0.5px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: rgba(245, 242, 235, 0.96);
-      backdrop-filter: blur(10px);
-      z-index: 100;
-    }
+        /* ── Custom cursor (desktop only) ────────────────── */
+        @media (pointer: fine) {
+            * { cursor: none !important; }
 
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-weight: 400;
-      font-size: 24px;
-      color: var(--ink);
-    }
+            #cursor {
+                position: fixed;
+                top: 0; left: 0;
+                width: 10px; height: 10px;
+                border-radius: 50%;
+                background: var(--accent);
+                pointer-events: none;
+                z-index: 99999;
+                transform: translate(-50%, -50%) scale(1);
+                transition: opacity .18s ease;
+                will-change: transform;
+            }
+            #cursor.is-hidden { opacity: 0; }
+        }
 
-    .btn-nav {
-      background: var(--ink);
-      color: var(--parchment);
-      border: none;
-      border-radius: 99px;
-      padding: 10px 22px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: opacity 0.15s;
-    }
-    .btn-nav:hover { opacity: 0.75; }
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: var(--font);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
 
-    .hero {
-      background: var(--ink);
-      padding: 7rem 2.5rem 6rem;
-      position: relative;
-      overflow: hidden;
-      min-height: 580px;
-    }
+        /* ── Nav ─────────────────────────────────────────── */
+        /* ── Wave section dividers ───────────────────────── */
+        .wave-divider {
+            display: block; width: 100%; overflow: hidden;
+            line-height: 0; margin-bottom: -1px; position: relative;
+        }
+        .wave-divider svg { display: block; width: 100%; height: 48px; }
 
-    #hero-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(8, 6, 4, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--light-gray);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 48px; height: 64px;
+        }
+        .logo { font-size: 18px; font-weight: 800; letter-spacing: -.5px; color: var(--white); text-decoration: none; }
+        .btn  { display: inline-block; text-decoration: none; cursor: pointer; font-family: var(--font); font-weight: 700; transition: background .15s, color .15s, opacity .15s; }
+        .btn-dark  { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 11px 22px; font-size: 14px; }
+        .btn-dark:hover { background: var(--accent); color: var(--black); }
+        .btn-large { background: var(--accent); color: var(--black); border: none; padding: 16px 32px; font-size: 16px; }
+        .btn-large:hover { opacity: .88; }
 
-    .hero-inner {
-      max-width: 720px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
+        /* ── Hero ────────────────────────────────────────── */
+        .hero-wrap { background: var(--black); }
+        .hero { padding: 120px 48px 100px; max-width: 960px; margin: 0 auto; }
+        .hero h1 { font-size: clamp(44px,6.5vw,84px); font-weight: 800; line-height: 1.04; letter-spacing: -3px; margin-bottom: 28px; }
+        .hero h1 em { font-style: normal; color: var(--accent); }
+        .hero p  { font-size: 19px; color: var(--gray); max-width: 520px; margin-bottom: 40px; line-height: 1.55; }
 
-    .hero-eyebrow {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1.5rem;
-    }
+        /* ── Pain ────────────────────────────────────────── */
+        .pain { background: var(--white); color: var(--black); padding: 96px 48px; margin: 0; }
+        .pain-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 56px; }
+        .pain-item  { font-size: 17px; line-height: 1.7; color: #6e6048; }
+        .pain-mark  { display: block; font-size: 40px; color: var(--accent); margin-bottom: 14px; line-height: 1; font-style: italic; }
 
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 58px;
-      line-height: 1.1;
-      color: var(--parchment);
-      letter-spacing: -1px;
-      margin-bottom: 1.5rem;
-      max-width: 600px;
-    }
+        /* ── Section label ───────────────────────────────── */
+        .label { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 52px; display: block; }
 
-    .hero h1 em {
-      font-style: italic;
-      font-weight: 400;
-      color: var(--gold);
-    }
+        /* ══════════════════════════════════════════════════
+           BELT SECTION — Three.js 3D scene, scroll-driven
+        ══════════════════════════════════════════════════ */
 
-    .hero-sub {
-      font-size: 17px;
-      color: #a09d94;
-      line-height: 1.7;
-      max-width: 460px;
-      margin-bottom: 2.5rem;
-    }
+        /* Outer div creates the scroll space — one chapter per box */
+        .belt-scroll-outer {
+            height: 400vh;
+            position: relative;
+        }
 
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
+        /* Sticky shell — stays pinned while user scrolls through the outer */
+        .belt-section {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: #080604;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    .btn-cta {
-      display: inline-block;
-      background: var(--gold);
-      color: var(--ink);
-      border: none;
-      border-radius: 99px;
-      padding: 14px 32px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
-    .btn-cta:hover { opacity: 0.85; }
+        .belt-header { text-align: center; padding: 48px 48px 28px; flex-shrink: 0; }
+        .belt-header .label { margin-bottom: 12px; }
+        .belt-header h2 { font-size: clamp(24px,3.5vw,48px); font-weight: 800; color: var(--white); letter-spacing: -2px; }
 
-    .hero-note { font-size: 13px; color: #6b6860; }
+        /* Canvas fills the rest of the viewport */
+        .belt-canvas-wrap {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
 
-    .hero-stats {
-      display: flex;
-      gap: 3rem;
-      margin-top: 5rem;
-      padding-top: 2.5rem;
-      border-top: 0.5px solid #2e2e28;
-      flex-wrap: wrap;
-    }
+        #belt-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--parchment);
-    }
+        /* Fade masks on top of canvas */
+        .belt-fade {
+            position: absolute; top: 0; bottom: 0;
+            width: 32%; z-index: 10; pointer-events: none;
+        }
+        .belt-fade-l { left:  0; background: linear-gradient(to right, #080604 15%, transparent); }
+        .belt-fade-r { right: 0; background: linear-gradient(to left,  #080604 15%, transparent); }
 
-    .stat-lbl { font-size: 12px; color: #6b6860; margin-top: 3px; }
+        /* Box content overlays */
+        .belt-overlays {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            pointer-events: none;
+            width: min(560px, 88vw);
+            text-align: center;
+        }
+        .belt-card {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            opacity: 0;
+            transform: translateY(20px);
+            color: var(--white);
+        }
+        .belt-card .card-label {
+            display: inline-block;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        .belt-card h3 {
+            font-size: clamp(26px, 3.8vw, 46px);
+            font-weight: 800;
+            margin: 0 0 14px;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        .belt-card p {
+            font-size: clamp(14px, 1.5vw, 17px);
+            color: rgba(240,232,208,0.6);
+            line-height: 1.7;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+        /* ══ END BELT SECTION ══ */
 
-    .pain-section { background: var(--parchment); border-bottom: 0.5px solid var(--border); }
-    .pain-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
+        /* ── Services ────────────────────────────────────── */
+        .services { background: var(--dark-warm); padding: 96px 48px; }
+        .services-inner { max-width: 960px; margin: 0 auto; }
+        .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--light-gray); border: 1px solid var(--light-gray); }
+        .service-item { background: #252010; padding: 32px; }
+        .service-item h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+        .service-item p  { font-size: 14px; color: var(--gray); line-height: 1.65; }
 
-    .section-label {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      color: var(--gold-dark);
-      text-transform: uppercase;
-      margin-bottom: 3rem;
-    }
+        /* ── How it works ────────────────────────────────── */
+        .how { background: var(--white); padding: 96px 48px; }
+        .how-inner { max-width: 960px; margin: 0 auto; }
+        .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 48px; }
+        .step-num { font-size: 52px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 20px; letter-spacing: -2px; }
+        .step h3  { font-size: 17px; font-weight: 700; margin-bottom: 10px; color: var(--black); }
+        .step p   { font-size: 14px; color: var(--gray); line-height: 1.7; }
 
-    .pain-list { display: flex; flex-direction: column; }
+        /* ── Trust ───────────────────────────────────────── */
+        .trust { background: var(--dark-warm); padding: 96px 48px; border-top: none; }
+        .trust-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+        .founder-note { font-size: 17px; line-height: 1.8; color: var(--gray); }
+        .founder-name { display: block; margin-top: 24px; font-weight: 700; color: var(--accent); font-size: 15px; }
+        .guarantees   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .guarantee    { border: 1px solid var(--light-gray); padding: 24px; background: #252010; }
+        .guarantee h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+        .guarantee p  { font-size: 13px; color: var(--gray); line-height: 1.65; }
 
-    .pain-item {
-      padding: 2rem 0;
-      border-top: 0.5px solid var(--border);
-      display: grid;
-      grid-template-columns: 32px 1fr;
-      gap: 1.5rem;
-      align-items: start;
-    }
-    .pain-item:last-child { border-bottom: 0.5px solid var(--border); }
+        /* ── Form ────────────────────────────────────────── */
+        .form-section { background: var(--black); color: var(--white); padding: 96px 48px; }
+        .form-inner   { max-width: 600px; margin: 0 auto; }
+        .form-inner h2 { font-size: clamp(36px,5vw,56px); font-weight: 800; letter-spacing: -2px; margin-bottom: 8px; }
+        .form-inner > p { color: var(--gray); margin-bottom: 48px; font-size: 15px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #a09478; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; background: #141008; border: 1px solid #2a2418; color: var(--white); padding: 14px 16px; font-size: 15px; font-family: var(--font); outline: none; transition: border-color .15s; border-radius: 0; appearance: none; -webkit-appearance: none; }
+        input::placeholder, textarea::placeholder { color: #4a4030; }
+        input:focus, select:focus, textarea:focus  { border-color: var(--accent); }
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; cursor: pointer; }
+        select option { background: #141008; }
+        textarea { height: 120px; resize: vertical; }
+        .btn-submit { width: 100%; background: var(--accent); color: var(--white); border: none; padding: 18px 32px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; font-family: var(--font); transition: opacity .15s; }
+        .btn-submit:hover { opacity: .88; }
+        .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+        .form-success { text-align: center; padding: 48px 0; }
+        .form-success h3 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+        .form-success p  { color: var(--gray); margin-bottom: 24px; }
+        .form-success a  { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: .05em; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+        .form-success a:hover { opacity: .75; }
 
-    .pain-num { font-size: 11px; color: var(--gold-dark); font-weight: 500; letter-spacing: 0.06em; padding-top: 6px; }
+        /* ── Footer ──────────────────────────────────────── */
+        footer { background: var(--dark-mid); padding: 32px 48px; border-top: 1px solid var(--light-gray); display: flex; align-items: center; justify-content: space-between; }
+        .footer-logo  { font-weight: 800; font-size: 16px; letter-spacing: -.3px; }
+        .footer-right { font-size: 13px; color: var(--gray); }
+        .footer-right a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .footer-right a:hover { color: var(--accent); }
 
-    .pain-text {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 22px;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.4;
-    }
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            nav { padding: 0 24px; }
+            .hero { padding: 72px 24px 64px; }
+            .wave-divider svg { height: 28px; }
+            .hero h1 { letter-spacing: -2px; }
+            .pain { padding: 64px 24px; }
+            .pain-inner { grid-template-columns: 1fr; gap: 40px; }
 
-    .pain-sub {
-      font-size: 14px;
-      color: var(--ink-light);
-      line-height: 1.65;
-      margin-top: 0.5rem;
-      font-family: 'DM Sans', sans-serif;
-      font-style: normal;
-    }
+            /* Belt section */
+            .belt-scroll-outer { height: 220vh; }
+            .belt-header { padding: 24px 24px 16px; }
+            .belt-header h2 { font-size: 28px; letter-spacing: -1px; }
+            .belt-canvas-wrap { height: 55vh; }
+            .belt-overlays { top: 3%; width: 92vw; }
+            .belt-card h3 { font-size: clamp(18px, 5.5vw, 24px); }
+            .belt-card p  { font-size: 13px; line-height: 1.55; }
+            .belt-card .card-label { margin-bottom: 10px; }
 
-    .services-section { background: #222220; border-bottom: 0.5px solid #2e2e28; }
-    .services-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
-    .services-inner .section-label { color: var(--gold); }
-
-    .section-heading-light {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 36px;
-      color: var(--parchment);
-      line-height: 1.2;
-      letter-spacing: -0.3px;
-      margin-bottom: 0.75rem;
-    }
-
-    .section-sub-light { font-size: 16px; color: #7a7870; line-height: 1.7; max-width: 520px; margin-bottom: 3rem; }
-
-    .services { display: flex; flex-direction: column; border: 0.5px solid #2e2e28; border-radius: var(--radius); overflow: hidden; }
-
-    .service-item {
-      padding: 1.75rem 2rem;
-      border-bottom: 0.5px solid #2e2e28;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-      align-items: start;
-    }
-    .service-item:last-child { border-bottom: none; }
-
-    .service-title { font-size: 15px; font-weight: 500; color: var(--parchment); margin-bottom: 0.35rem; }
-    .service-desc { font-size: 13px; color: #7a7870; line-height: 1.65; }
-    .service-arrow { font-size: 18px; color: #3a3a34; margin-top: 2px; }
-
-    .task-list { margin-top: 1.5rem; padding: 1.5rem 2rem; border: 0.5px solid #2e2e28; border-radius: var(--radius); }
-    .task-list-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-    .tasks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .task-pill { font-size: 12px; color: #7a7870; border: 0.5px solid #2e2e28; border-radius: 99px; padding: 5px 14px; }
-
-    .details { margin-top: 2rem; display: flex; gap: 2rem; flex-wrap: wrap; }
-    .detail-item { display: flex; align-items: flex-start; gap: 0.6rem; }
-    .detail-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); margin-top: 9px; flex-shrink: 0; }
-    .detail-text { font-size: 14px; color: #7a7870; line-height: 1.5; }
-    .detail-text strong { color: var(--parchment); font-weight: 500; }
-
-    .steps-section { background: var(--parchment-dark); border-bottom: 0.5px solid var(--border); }
-    .steps-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
-
-    .section-heading {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 36px;
-      color: var(--ink);
-      line-height: 1.2;
-      letter-spacing: -0.3px;
-      margin-bottom: 3rem;
-    }
-
-    .steps { display: flex; flex-direction: column; }
-
-    .step {
-      display: grid;
-      grid-template-columns: 64px 1fr auto;
-      gap: 1.5rem;
-      align-items: start;
-      padding: 2.5rem 0;
-      border-top: 0.5px solid var(--border);
-    }
-    .step:last-child { border-bottom: 0.5px solid var(--border); }
-
-    .step-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 52px; color: var(--border); line-height: 1; }
-    .step-title { font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 0.4rem; padding-top: 4px; }
-    .step-desc { font-size: 14px; color: var(--ink-light); line-height: 1.65; }
-
-    .step-time {
-      font-size: 11px;
-      color: var(--gold-dark);
-      background: var(--parchment);
-      border: 0.5px solid var(--border);
-      border-radius: 99px;
-      padding: 5px 12px;
-      white-space: nowrap;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      margin-top: 6px;
-    }
-
-    .trust-section { background: var(--parchment); border-bottom: 0.5px solid var(--border); }
-    .trust-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; }
-
-    .guarantees {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .guarantee-item { background: var(--parchment); padding: 1.75rem 2rem; }
-    .guarantee-title { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 0.4rem; }
-    .guarantee-desc { font-size: 13px; color: var(--ink-light); line-height: 1.65; }
-
-    .form-section { background: var(--ink); border-bottom: 0.5px solid #2e2e28; }
-    .form-inner { max-width: 720px; margin: 0 auto; padding: 5rem 2rem; text-align: center; }
-    .form-inner .section-label { color: var(--gold); margin-bottom: 0.75rem; }
-
-    .form-heading {
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 40px;
-      color: var(--parchment);
-      letter-spacing: -0.5px;
-      margin-bottom: 0.75rem;
-      line-height: 1.15;
-    }
-
-    .form-sub { font-size: 15px; color: #6b6860; margin-bottom: 2.5rem; line-height: 1.7; }
-
-    .form-placeholder {
-      background: #222220;
-      border: 0.5px dashed #3a3a34;
-      border-radius: var(--radius);
-      padding: 4rem 2rem;
-      font-size: 14px;
-      color: #4a4a44;
-    }
-
-    footer { background: var(--ink); border-top: 0.5px solid #2e2e28; }
-    .footer-inner {
-      max-width: 720px; margin: 0 auto; padding: 2rem;
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
-    }
-    .footer-logo { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: var(--parchment); font-weight: 400; }
-    .footer-meta { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
-    .footer-item { font-size: 13px; color: #4a4a44; }
-    .footer-email { font-size: 13px; color: #7a7870; text-decoration: none; border-bottom: 0.5px solid #3a3a34; padding-bottom: 1px; transition: color 0.15s; }
-    .footer-email:hover { color: var(--parchment); }
-
-    @media (max-width: 600px) {
-      nav { padding: 1rem 1.25rem; }
-      .hero { padding: 4.5rem 1.25rem 4rem; min-height: 480px; }
-      .hero h1 { font-size: 36px; }
-      .hero-stats { gap: 2rem; }
-      .pain-inner, .services-inner, .steps-inner, .trust-inner, .form-inner { padding: 3.5rem 1.25rem; }
-      .section-heading, .section-heading-light, .form-heading { font-size: 28px; }
-      .guarantees { grid-template-columns: 1fr; }
-      .step { grid-template-columns: 48px 1fr; }
-      .step-time { display: none; }
-      .step-num { font-size: 40px; }
-    }
-  </style>
+            .services { padding: 64px 24px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .how { padding: 64px 24px; }
+            .steps { grid-template-columns: 1fr; gap: 40px; }
+            .trust { padding: 64px 24px; }
+            .trust-inner { grid-template-columns: 1fr; gap: 48px; }
+            .guarantees { grid-template-columns: 1fr; }
+            .form-section { padding: 64px 24px; }
+            footer { padding: 28px 24px; flex-direction: column; gap: 12px; text-align: center; }
+        }
+    </style>
 </head>
 <body>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div id="cursor"></div>
 
-  <nav>
-    <div class="logo">clairo</div>
-    <a href="#get-started" class="btn-nav">Get a quote</a>
-  </nav>
 
-  <section class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-inner">
-      <p class="hero-eyebrow">Contract packaging · San Mateo, CA</p>
-      <h1>Finally, a co-packer that says <em>yes</em> to small runs.</h1>
-      <p class="hero-sub">Hand-assembled kitting, gift sets, and custom packaging for food and specialty brands. No minimums. No setup fees.</p>
-      <div class="hero-actions">
-        <a href="#get-started" class="btn-cta">Tell us what you need</a>
-        <span class="hero-note">We'll get back to you within 48 hours</span>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="stat-num">48 hrs</div>
-          <div class="stat-lbl">Quote turnaround</div>
-        </div>
-        <div>
-          <div class="stat-num">2–3 wks</div>
-          <div class="stat-lbl">Packing turnaround</div>
-        </div>
-        <div>
-          <div class="stat-num">Zero</div>
-          <div class="stat-lbl">Volume minimums</div>
-        </div>
-      </div>
+<!-- ── Nav ──────────────────────────────────────────────── -->
+<nav>
+    <a href="/" class="logo">copacker</a>
+    <a href="#quote" class="btn btn-dark">Get a quote</a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<div class="hero-wrap">
+<section class="hero">
+    <h1>Finally, a co-packer that says <em>yes</em> to small&nbsp;runs.</h1>
+    <p>Contract packaging for CPG brands. Starting at 200 units. No setup fees. 2–3 week turnaround.</p>
+    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        <a href="#quote" class="btn btn-large">Tell us what you need &rarr;</a>
+        <span style="font-size:14px; color:var(--gray);">We'll get back to you within 48 hours</span>
     </div>
-  </section>
+</section>
+</div>
 
-  <section class="pain-section">
+<div class="wave-divider" style="background:#080604;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,48 1080,0 1440,24 L1440,48 L0,48 Z" fill="#f0e8d0"/></svg></div>
+
+<!-- ── Pain ─────────────────────────────────────────────── -->
+<section class="pain">
     <div class="pain-inner">
-      <p class="section-label">Sound familiar?</p>
-      <div class="pain-list">
-        <div class="pain-item">
-          <span class="pain-num">01</span>
-          <div>
-            <p class="pain-text">You called five co-packers. They all said your volume was too small.</p>
-            <p class="pain-sub">Most facilities won't touch anything under 10,000 units. You're not there yet and you shouldn't have to be.</p>
-          </div>
-        </div>
-        <div class="pain-item">
-          <span class="pain-num">02</span>
-          <div>
-            <p class="pain-text">You don't need 10,000 units. You need a few hundred to test the market.</p>
-            <p class="pain-sub">Proving demand before scaling is just smart. We get that.</p>
-          </div>
-        </div>
-        <div class="pain-item">
-          <span class="pain-num">03</span>
-          <div>
-            <p class="pain-text">You've been hand-packing in your kitchen for six months. You're ready for the next step.</p>
-            <p class="pain-sub">There's a gap between doing it yourself and going fully industrial. We sit right in that gap.</p>
-          </div>
-        </div>
-      </div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You called five co-packers. They all said your volume was too small.</div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You don't need 10,000 units. You need 300 to test the market.</div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You've been hand-packing in your kitchen for six months. You're ready for the next step.</div>
     </div>
-  </section>
+</section>
 
-  <section class="services-section">
+<div class="wave-divider" style="background:#f0e8d0;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,0 1080,48 1440,24 L1440,48 L0,48 Z" fill="#080604"/></svg></div>
+
+<!-- ── Belt Section (Three.js, scroll-driven) ───────────── -->
+<div class="belt-scroll-outer">
+<section class="belt-section">
+    <div class="belt-header">
+        <span class="label">What we handle</span>
+        <h2>It's all in the boxes.</h2>
+    </div>
+    <div class="belt-canvas-wrap">
+        <canvas id="belt-canvas"></canvas>
+        <div class="belt-overlays">
+            <div class="belt-card">
+                <div class="card-label">01 / 04</div>
+                <h3>Kitting &amp; Assembly</h3>
+                <p>We turn raw components into shelf-ready kits — pick, pack, and bundle at any scale.</p>
+            </div>
+            <div class="belt-card">
+                <div class="card-label">02 / 04</div>
+                <h3>Labeling &amp; Compliance</h3>
+                <p>FDA-ready labels, barcoding, and co-man documentation. Every unit ships compliant.</p>
+            </div>
+            <div class="belt-card">
+                <div class="card-label">03 / 04</div>
+                <h3>Fulfillment</h3>
+                <p>DTC and B2B shipping from our warehouse. Your product, on time, anywhere.</p>
+            </div>
+            <div class="belt-card">
+                <div class="card-label">04 / 04</div>
+                <h3>Custom Packaging</h3>
+                <p>Branded boxes, inserts, and sustainable materials. Unboxing that sells itself.</p>
+            </div>
+        </div>
+        <div class="belt-fade belt-fade-l"></div>
+        <div class="belt-fade belt-fade-r"></div>
+    </div>
+</section>
+
+</div><!-- /.belt-scroll-outer -->
+
+<div class="wave-divider" style="background:#080604;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,0 1080,48 1440,24 L1440,48 L0,48 Z" fill="#1e1a0e"/></svg></div>
+
+<!-- ── Services ─────────────────────────────────────────── -->
+<section class="services">
     <div class="services-inner">
-      <p class="section-label">What we do</p>
-      <h2 class="section-heading-light">Hand-assembled packaging, done right.</h2>
-      <p class="section-sub-light">We specialize in the jobs that are too small for big facilities and too fiddly for machines.</p>
-      <div class="services">
-        <div class="service-item">
-          <div>
-            <p class="service-title">Specialty food kitting and gift sets</p>
-            <p class="service-desc">Hot sauces, spice blends, premium snacks assembled into seasonal gift sets or DTC bundles. Tissue paper, stickers, custom inserts, multiple SKUs per box. Every configuration is different and that's fine.</p>
-          </div>
-          <span class="service-arrow">→</span>
+        <span class="label">What we handle</span>
+        <div class="services-grid">
+            <div class="service-item"><h3>Gift sets &amp; kitting</h3><p>Multiple SKUs combined into a single retail-ready package. We handle the assembly.</p></div>
+            <div class="service-item"><h3>Specialty food packaging</h3><p>Pouches, jars, sachets, boxes — whatever format your product needs.</p></div>
+            <div class="service-item"><h3>Seasonal &amp; promo runs</h3><p>Holiday packaging, limited editions, launch quantities. No minimum commitment.</p></div>
+            <div class="service-item"><h3>Starting at 200 units</h3><p>No arbitrary minimums. Order what you actually need to test and learn.</p></div>
+            <div class="service-item"><h3>2–3 week turnaround</h3><p>From approved spec to product at your door. We don't sit on orders.</p></div>
+            <div class="service-item"><h3>No setup fees</h3><p>Fixed per-unit pricing. What we quote is what you pay — every time.</p></div>
         </div>
-        <div class="service-item">
-          <div>
-            <p class="service-title">Supplement and nutraceutical sample packs</p>
-            <p class="service-desc">Trial kits and sample packs for small supplement brands. Multiple SKUs, small runs, each unit hand-assembled. No one wants to spend their week stuffing envelopes. We do it so you don't have to.</p>
-          </div>
-          <span class="service-arrow">→</span>
-        </div>
-        <div class="service-item">
-          <div>
-            <p class="service-title">Beauty and cosmetics subscription boxes</p>
-            <p class="service-desc">Monthly subscription boxes for indie beauty brands. Four to six items per box, rotating SKUs, low volumes. We handle the assembly so you can focus on building your brand.</p>
-          </div>
-          <span class="service-arrow">→</span>
-        </div>
-      </div>
-      <div class="task-list">
-        <p class="task-list-label">We also do</p>
-        <div class="tasks">
-          <span class="task-pill">Label application</span>
-          <span class="task-pill">Sticker placement</span>
-          <span class="task-pill">Bagging dry goods</span>
-          <span class="task-pill">Pick and place</span>
-          <span class="task-pill">Box and bag packing</span>
-          <span class="task-pill">Seasonal promo runs</span>
-          <span class="task-pill">Insert placement</span>
-        </div>
-      </div>
-      <div class="details">
-        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>No volume minimums.</strong> Start as small as you need.</p></div>
-        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>No setup fees.</strong> What we quote is what you pay.</p></div>
-        <div class="detail-item"><div class="detail-dot"></div><p class="detail-text"><strong>2 to 3 week turnaround</strong> on most runs.</p></div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <section class="steps-section">
-    <div class="steps-inner">
-      <p class="section-label">How it works</p>
-      <h2 class="section-heading">Three steps from inquiry to delivery.</h2>
-      <div class="steps">
-        <div class="step">
-          <span class="step-num">1</span>
-          <div>
-            <p class="step-title">Tell us about your product</p>
-            <p class="step-desc">Fill out the short form below. It takes about three minutes. Tell us what you're packaging, how many units you need, and when you need it. No lengthy RFQs, no back and forth to get started.</p>
-          </div>
-          <span class="step-time">3 min</span>
+<div class="wave-divider" style="background:#1e1a0e;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,48 1080,0 1440,24 L1440,48 L0,48 Z" fill="#f0e8d0"/></svg></div>
+
+<!-- ── How it works ──────────────────────────────────────── -->
+<section class="how">
+    <div class="how-inner">
+        <span class="label">How it works</span>
+        <div class="steps">
+            <div class="step"><div class="step-num">01</div><h3>Tell us about your product</h3><p>Fill out the form below. Takes 3 minutes. Tell us what you're packing and how many units you need.</p></div>
+            <div class="step"><div class="step-num">02</div><h3>We send a quote in 48 hours</h3><p>Priced per unit, no hidden fees. If we can't do it, we'll say so and refer you to someone who can.</p></div>
+            <div class="step"><div class="step-num">03</div><h3>We pack. You ship.</h3><p>Your product arrives retail-ready at your door. Ready to sell on day one.</p></div>
         </div>
-        <div class="step">
-          <span class="step-num">2</span>
-          <div>
-            <p class="step-title">We send you a quote</p>
-            <p class="step-desc">Within 48 hours you'll get a per-unit price with no hidden fees. If we can't do the job for any reason, we'll tell you straight away and point you to someone who can.</p>
-          </div>
-          <span class="step-time">Within 48 hrs</span>
-        </div>
-        <div class="step">
-          <span class="step-num">3</span>
-          <div>
-            <p class="step-title">We pack, you ship</p>
-            <p class="step-desc">Send us your product and materials. We assemble everything to your spec and ship it back retail-ready. Most runs are done in two to three weeks.</p>
-          </div>
-          <span class="step-time">2 to 3 weeks</span>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <section class="trust-section">
+<div class="wave-divider" style="background:#f0e8d0;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,0 1080,48 1440,24 L1440,48 L0,48 Z" fill="#1e1a0e"/></svg></div>
+
+<!-- ── Trust ─────────────────────────────────────────────── -->
+<section class="trust">
     <div class="trust-inner">
-      <p class="section-label">Why trust us</p>
-      <h2 class="section-heading">We keep it simple and straight.</h2>
-      <div class="guarantees">
-        <div class="guarantee-item">
-          <p class="guarantee-title">Fixed pricing</p>
-          <p class="guarantee-desc">The price we quote is the price you pay. No surprise fees, no charges for setup or equipment.</p>
+        <div>
+            <span class="label">Who we are</span>
+            <p class="founder-note">I kept watching small brands get turned away by facilities that weren't built for them. Every co-packer I spoke to had minimums designed for brands doing 50,000 units a year. The brands doing 500 — the ones who needed help the most — were sent away.<br><br>copacker is built for those brands.<span class="founder-name">— The copacker team</span></p>
         </div>
-        <div class="guarantee-item">
-          <p class="guarantee-title">Honest about fit</p>
-          <p class="guarantee-desc">If your job is not right for us, we'll tell you within 48 hours and point you to someone who can help. No stringing you along.</p>
+        <div>
+            <span class="label">Our guarantees</span>
+            <div class="guarantees">
+                <div class="guarantee"><h4>48-hour response</h4><p>If we can't pack your product, we'll tell you within 48 hours and point you to someone who can.</p></div>
+                <div class="guarantee"><h4>Fixed pricing</h4><p>What we quote is what you pay. No setup fees, no surprise charges.</p></div>
+                <div class="guarantee"><h4>No commitment</h4><p>First run, no strings attached. We earn your repeat business by doing good work.</p></div>
+                <div class="guarantee"><h4>Real people</h4><p>You'll talk to a human, not a ticketing system. Every time you reach out.</p></div>
+            </div>
         </div>
-        <div class="guarantee-item">
-          <p class="guarantee-title">No long commitments</p>
-          <p class="guarantee-desc">Start with one run. See how it goes. We would rather earn your repeat business than lock you into anything.</p>
-        </div>
-        <div class="guarantee-item">
-          <p class="guarantee-title">Real people, real location</p>
-          <p class="guarantee-desc">We are based in San Mateo, CA. Bay Area brands are welcome to come visit before committing if that helps.</p>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <section class="form-section" id="get-started">
+<div class="wave-divider" style="background:#1e1a0e;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,48 1080,0 1440,24 L1440,48 L0,48 Z" fill="#080604"/></svg></div>
+
+<!-- ── Quote Form ────────────────────────────────────────── -->
+<section class="form-section" id="quote">
     <div class="form-inner">
-      <p class="section-label">Get started</p>
-      <h2 class="form-heading">Tell us what you need.</h2>
-      <p class="form-sub">Takes about three minutes. We'll get back to you within 48 hours.</p>
-      <!-- REPLACE the div below with your Google Form embed code -->
-      <div class="form-placeholder">Paste your Google Form embed code here</div>
+        <h2>Get a quote.</h2>
+        <p>We'll review your request and get back to you within 48 hours.</p>
+        <form id="quote-form">
+            <div class="form-group"><label for="name">Your name</label><input id="name" type="text" placeholder="Jane Smith" required></div>
+            <div class="form-group"><label for="email">Email</label><input id="email" type="email" placeholder="jane@yourbrand.com" required></div>
+            <div class="form-group"><label for="product">What's your product?</label><input id="product" type="text" placeholder="e.g. Organic granola in 8oz kraft pouches" required></div>
+            <div class="form-group">
+                <label for="units">Units for your first run</label>
+                <select id="units" required>
+                    <option value="" disabled selected>Select a range</option>
+                    <option>200–500 units</option><option>500–1,000 units</option><option>1,000–5,000 units</option><option>5,000+ units</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="timeline">How soon do you need it?</label>
+                <select id="timeline" required>
+                    <option value="" disabled selected>Select a timeframe</option>
+                    <option>Within 2 weeks</option><option>Within a month</option><option>1–3 months out</option><option>Just exploring</option>
+                </select>
+            </div>
+            <div class="form-group"><label for="notes">Anything specific we should know?</label><textarea id="notes" placeholder="Special packaging requirements, certifications, materials, etc."></textarea></div>
+            <button type="submit" class="btn-submit">Send my request &rarr;</button>
+        </form>
     </div>
-  </section>
+</section>
 
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-logo">clairo</div>
-      <div class="footer-meta">
-        <span class="footer-item">San Mateo, CA</span>
-        <!-- REPLACE with your real email -->
-        <a class="footer-email" href="mailto:hello@clairo.com">hello@clairo.com</a>
-      </div>
-    </div>
-  </footer>
+<div class="wave-divider" style="background:#080604;"><svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,24 C360,0 1080,48 1440,24 L1440,48 L0,48 Z" fill="#110e08"/></svg></div>
 
-  <script>
-    const canvas = document.getElementById('hero-canvas');
+<!-- ── Footer ────────────────────────────────────────────── -->
+<footer>
+    <div class="footer-logo">copacker</div>
+    <div class="footer-right"><a href="mailto:hello@copacker.org">hello@copacker.org</a> &nbsp;&middot;&nbsp; San Mateo, CA</div>
+</footer>
+
+<!-- ── Three.js CDN ──────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+
+<script>
+(function () {
+    /* ── Sizing ──────────────────────────────────────────── */
+    const wrap   = document.querySelector('.belt-canvas-wrap');
+    const canvas = document.getElementById('belt-canvas');
+
+    function W() { return wrap.clientWidth; }
+    function H() { return wrap.clientHeight; }
+
+    /* ── Mobile detection ────────────────────────────────── */
+    const isMobile = window.innerWidth < 768;
+
+    /* ── Renderer ────────────────────────────────────────── */
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.5 : 2));
+    renderer.setSize(W(), H());
+    renderer.shadowMap.enabled = !isMobile; // shadows off on mobile for performance
+    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+    renderer.outputEncoding    = THREE.sRGBEncoding;
+
+    /* ── Scene ───────────────────────────────────────────── */
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080604);
+    scene.fog        = new THREE.Fog(0x080604, 15, 21);
+
+    /* ── Camera ──────────────────────────────────────────── */
+    const camera = new THREE.PerspectiveCamera(isMobile ? 54 : 36, W() / H(), 0.1, 100);
+    camera.position.set(0, 6.5, isMobile ? 10 : 12);
+    camera.lookAt(0, 0.2, 0);
+
+    /* ── Lights ──────────────────────────────────────────── */
+    // Hemisphere: warm sky, cool ground bounce
+    const hemi = new THREE.HemisphereLight(0xfff4e0, 0x2a1a08, 0.85);
+    scene.add(hemi);
+
+    // Main directional (sun) — casts shadows
+    const sun = new THREE.DirectionalLight(0xfff8f0, 1.5);
+    sun.position.set(6, 14, 8);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near   =  0.5;
+    sun.shadow.camera.far    =  60;
+    sun.shadow.camera.left   = -18;
+    sun.shadow.camera.right  =  18;
+    sun.shadow.camera.top    =  12;
+    sun.shadow.camera.bottom = -12;
+    sun.shadow.bias          = -0.001;
+    scene.add(sun);
+
+    // Warm gold rim light from back-left
+    const rim = new THREE.DirectionalLight(0xd4a050, 0.35);
+    rim.position.set(-8, 5, -6);
+    scene.add(rim);
+
+    /* ── Belt canvas texture (scrolling slats) ───────────── */
+    const tc = document.createElement('canvas');
+    tc.width = 512; tc.height = 64;
+    const tctx = tc.getContext('2d');
+    tctx.fillStyle = '#1a1508';
+    tctx.fillRect(0, 0, 512, 64);
+    for (let x = 0; x < 512; x += 28) {
+        tctx.fillStyle = 'rgba(255,255,255,0.04)';
+        tctx.fillRect(x, 4, 3, 56);
+    }
+    // Edge darkening
+    const eg = tctx.createLinearGradient(0, 0, 0, 64);
+    eg.addColorStop(0,   'rgba(0,0,0,0.35)');
+    eg.addColorStop(0.2, 'rgba(0,0,0,0)');
+    eg.addColorStop(0.8, 'rgba(0,0,0,0)');
+    eg.addColorStop(1,   'rgba(0,0,0,0.35)');
+    tctx.fillStyle = eg;
+    tctx.fillRect(0, 0, 512, 64);
+
+    const beltTex = new THREE.CanvasTexture(tc);
+    beltTex.wrapS = THREE.RepeatWrapping;
+    beltTex.repeat.set(14, 1);
+
+    /* ── Belt platform ───────────────────────────────────── */
+    const BL = 60;   // belt length — long enough that ends are never visible
+    const BW = 2.8;  // belt width
+    const BH = 0.18; // belt height
+
+    const beltMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(BL, BH, BW),
+        [
+            new THREE.MeshStandardMaterial({ color: 0x282828, roughness: 0.9, metalness: 0.1 }),
+            new THREE.MeshStandardMaterial({ color: 0x282828, roughness: 0.9, metalness: 0.1 }),
+            new THREE.MeshStandardMaterial({ map: beltTex,   roughness: 0.95, metalness: 0.05 }),
+            new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1.0  }),
+            new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9  }),
+            new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9  }),
+        ]
+    );
+    beltMesh.position.y = -BH / 2;
+    beltMesh.receiveShadow = true;
+    scene.add(beltMesh);
+
+    /* ── End rollers ─────────────────────────────────────── */
+    const rollerMat = new THREE.MeshStandardMaterial({
+        color: 0x707070, metalness: 0.88, roughness: 0.18
+    });
+    function addRoller(x) {
+        const r = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.44, 0.44, BW + 0.08, 32),
+            rollerMat
+        );
+        r.rotation.x = Math.PI / 2;
+        r.position.set(x, 0, 0);
+        r.castShadow = true;
+        r.receiveShadow = true;
+        scene.add(r);
+
+        // Axle caps
+        for (const side of [-1, 1]) {
+            const cap = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16),
+                new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.9, roughness: 0.1 })
+            );
+            cap.rotation.x = Math.PI / 2;
+            cap.position.set(x, 0, side * (BW / 2 + 0.06));
+            scene.add(cap);
+        }
+    }
+    addRoller(-BL / 2 + 0.44);
+    addRoller( BL / 2 - 0.44);
+
+    /* ── Support legs ────────────────────────────────────── */
+    const frameCol = 0x4a4a4a;
+    const frameMat = new THREE.MeshStandardMaterial({ color: frameCol, metalness: 0.75, roughness: 0.35 });
+    const LEG_H = 2.0;
+
+    function addFrame(x) {
+        // Two vertical legs
+        for (const z of [-BW / 2 + 0.12, BW / 2 - 0.12]) {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, LEG_H, 0.12), frameMat);
+            leg.position.set(x, -BH - LEG_H / 2, z);
+            leg.castShadow = true;
+            scene.add(leg);
+        }
+        // Cross brace
+        const brace = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, BW - 0.24), frameMat);
+        brace.position.set(x, -BH - LEG_H + 0.5, 0);
+        scene.add(brace);
+    }
+    for (let x = -24; x <= 24; x += 6) addFrame(x);
+
+    /* ── Ground (shadow only) ────────────────────────────── */
+    const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(40, 14),
+        new THREE.ShadowMaterial({ opacity: 0.45 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -BH - LEG_H;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    /* ── Boxes ───────────────────────────────────────────── */
+    const BOX_W = 1.35, BOX_H = 1.6, BOX_D = 1.35;
+    const LID_T = 0.08; // lid thickness
+    const LOOP = 40;
+    const N    = 4;
+    // Positions chosen so boxes arrive at center in order 0→1→2→3 as belt moves left,
+    // while keeping all 4 visible on the belt at the start (spread across both sides).
+    const START_X = [5, 15, -15, -5];
+
+    // Shared materials
+    const matSide = new THREE.MeshStandardMaterial({ color: 0xbe8238, roughness: 0.82, metalness: 0.0 });
+    const matTop  = new THREE.MeshStandardMaterial({ color: 0xd4a84a, roughness: 0.78, metalness: 0.0 });
+    const matBot  = new THREE.MeshStandardMaterial({ color: 0x946028, roughness: 0.92, metalness: 0.0 });
+    // BoxGeometry face order: +x, -x, +y (top), -y (bottom), +z (front), -z (back)
+    const bodyMats = [matSide, matSide, matTop, matBot, matSide, matSide];
+    const lidMats  = [matSide, matSide, matTop, matSide, matSide, matSide];
+
+    const tapeMat = new THREE.MeshStandardMaterial({
+        color: 0xf0e0a0, roughness: 0.5, metalness: 0,
+        transparent: true, opacity: 0.72
+    });
+
+    const bodyGeo    = new THREE.BoxGeometry(BOX_W, BOX_H, BOX_D);
+    const halfLidGeo = new THREE.BoxGeometry(BOX_W / 2, LID_T, BOX_D);
+    const halfTapeGeo = new THREE.BoxGeometry(BOX_W / 2 * 0.28, 0.012, BOX_D);
+
+    const boxes      = []; // THREE.Group — moved by belt animation
+    const rayTargets = []; // body meshes — used for raycasting
+
+    for (let i = 0; i < N; i++) {
+        const group = new THREE.Group();
+        group.position.set(START_X[i], BOX_H / 2, 0);
+        scene.add(group);
+
+        // Body
+        const body = new THREE.Mesh(bodyGeo, bodyMats);
+        body.castShadow = body.receiveShadow = true;
+        group.add(body);
+        rayTargets.push(body);
+
+        // Both lid flaps hinge at the centre-top of the box.
+        // Pivot sits at: x=0, y = top-of-body + half lid thickness, z=0
+        // Rotating around the Z axis swings each flap upward and outward.
+        //
+        // Maths check (rotation matrix around Z):
+        //   left pivot at x=−W/2 (outer edge), flap extends inward → +Z rotation lifts inner edge UP
+        //   right pivot at x=+W/2 (outer edge), flap extends inward → −Z rotation lifts inner edge UP
+        const PIVOT_Y = BOX_H / 2 + LID_T / 2;
+
+        // ── Left flap — hinge at outer left edge ──
+        const leftPivot = new THREE.Group();
+        leftPivot.position.set(-BOX_W / 2, PIVOT_Y, 0);
+        group.add(leftPivot);
+
+        const leftFlap = new THREE.Mesh(halfLidGeo, lidMats);
+        leftFlap.position.x = BOX_W / 4; // centre of half-flap, right of pivot
+        leftFlap.castShadow = true;
+        leftPivot.add(leftFlap);
+
+        const leftTape = new THREE.Mesh(halfTapeGeo, tapeMat);
+        leftTape.position.y = LID_T / 2 + 0.006;
+        leftFlap.add(leftTape);
+
+        // ── Right flap — hinge at outer right edge ──
+        const rightPivot = new THREE.Group();
+        rightPivot.position.set(BOX_W / 2, PIVOT_Y, 0);
+        group.add(rightPivot);
+
+        const rightFlap = new THREE.Mesh(halfLidGeo, lidMats);
+        rightFlap.position.x = -BOX_W / 4;
+        rightFlap.castShadow = true;
+        rightPivot.add(rightFlap);
+
+        const rightTape = new THREE.Mesh(halfTapeGeo, tapeMat);
+        rightTape.position.y = LID_T / 2 + 0.006;
+        rightFlap.add(rightTape);
+
+        // Hover glow — slightly oversized box, BackSide = rim highlight
+        const glow = new THREE.Mesh(
+            new THREE.BoxGeometry(BOX_W + 0.07, BOX_H + 0.07, BOX_D + 0.07),
+            new THREE.MeshBasicMaterial({
+                color: 0xffcc44, transparent: true,
+                opacity: 0, side: THREE.BackSide, depthWrite: false,
+            })
+        );
+        group.add(glow);
+
+        group.userData = { leftPivot, rightPivot, glow, hoverLift: 0, baseY: BOX_H / 2, cardOpacity: 0, cardY: 22 };
+        boxes.push(group);
+    }
+
+    /* ── Support rollers along belt (cosmetic) ───────────── */
+    const sRollerMat = new THREE.MeshStandardMaterial({ color: 0x505050, metalness: 0.7, roughness: 0.4 });
+    for (let x = -24; x <= 24; x += 4) {
+        const sr = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.09, 0.09, BW, 12),
+            sRollerMat
+        );
+        sr.rotation.x = Math.PI / 2;
+        sr.position.set(x, -BH / 2 - 0.09, 0);
+        scene.add(sr);
+    }
+
+    /* ── Raycasting (hover detection) ───────────────────── */
+    const raycaster = new THREE.Raycaster();
+    const mouse     = new THREE.Vector2(-999, -999);
+    let   hoveredBox = null;
+
+    canvas.addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mouse.x =  ((e.clientX - r.left) / r.width)  * 2 - 1;
+        mouse.y = -((e.clientY - r.top)  / r.height) * 2 + 1;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        mouse.set(-999, -999);
+        hoveredBox = null;
+        canvas.style.cursor = 'default';
+    });
+
+    /* ── Scroll-driven animation ─────────────────────────── */
+    const HALF         = LOOP / 2;  // = 20 — boxes wrap at ±20
+    const TOTAL_TRAVEL = 40;        // one full loop: each box passes through center exactly once
+
+    // Wire each box group to its DOM card
+    const beltCards = Array.from(document.querySelectorAll('.belt-card'));
+    boxes.forEach((group, i) => { group.userData.card = beltCards[i]; });
+
+    const beltOuter = document.querySelector('.belt-scroll-outer');
+
+    function getScrollProgress() {
+        const rect       = beltOuter.getBoundingClientRect();
+        const scrollable = beltOuter.offsetHeight - window.innerHeight;
+        if (scrollable <= 0) return 0;
+        return Math.max(0, Math.min(1, -rect.top / scrollable));
+    }
+
+    let prevProgress = getScrollProgress();
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        /* Belt movement */
+        const progress = getScrollProgress();
+        const delta    = progress - prevProgress;
+        prevProgress   = progress;
+        const move     = delta * TOTAL_TRAVEL;
+
+        /* Hover detection — desktop only (no mouse on touch screens) */
+        if (!isMobile) {
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(rayTargets);
+            const hit  = hits.length > 0 ? hits[0].object.parent : null;
+            if (hit !== hoveredBox) {
+                hoveredBox = hit;
+                canvas.style.cursor = hit ? 'pointer' : 'default';
+            }
+        }
+
+        /* Per-box updates */
+        boxes.forEach((group, idx) => {
+            const ud      = group.userData;
+            const hovered = group === hoveredBox;
+
+            // Belt translation + wrap
+            group.position.x -= move;
+            if (group.position.x < -HALF) group.position.x += LOOP;
+            if (group.position.x >  HALF) group.position.x -= LOOP;
+
+            // Scroll-driven opening: smoothstep based on proximity to x=0
+            const OPEN_RADIUS = 3.5; // wider → more time near center per box
+            const raw  = Math.max(0, 1 - Math.abs(group.position.x) / OPEN_RADIUS);
+            const openAmount = raw * raw * (3 - 2 * raw); // smoothstep
+
+            // Lid flaps
+            const targetLeft  = openAmount *  Math.PI * 0.72;
+            const targetRight = openAmount * -Math.PI * 0.72;
+            ud.leftPivot.rotation.z  += (targetLeft  - ud.leftPivot.rotation.z)  * 0.1;
+            ud.rightPivot.rotation.z += (targetRight - ud.rightPivot.rotation.z) * 0.1;
+
+            // Lift box off belt as it opens
+            const targetLift = openAmount * 0.22;
+            ud.hoverLift += (targetLift - ud.hoverLift) * 0.1;
+            group.position.y = ud.baseY + ud.hoverLift;
+
+            // Rim glow brightens when open; pulse on hover
+            const targetGlow = Math.max(openAmount * 0.18, hovered ? 0.14 : 0);
+            ud.glow.material.opacity += (targetGlow - ud.glow.material.opacity) * 0.1;
+
+            // Card text fades in and floats up — low threshold so text stays visible longer
+            const targetCard = openAmount > 0.2 ? Math.min(1, (openAmount - 0.2) / 0.25) : 0;
+            ud.cardOpacity += (targetCard - ud.cardOpacity) * 0.08;
+            ud.cardY       += ((1 - ud.cardOpacity) * 22 - ud.cardY) * 0.08;
+            if (ud.card) {
+                ud.card.style.opacity   = ud.cardOpacity;
+                ud.card.style.transform = `translateY(${ud.cardY.toFixed(1)}px)`;
+            }
+        });
+
+        beltTex.offset.x += move * 0.055;
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    /* ── Resize ──────────────────────────────────────────── */
+    window.addEventListener('resize', () => {
+        camera.aspect = W() / H();
+        camera.updateProjectionMatrix();
+        renderer.setSize(W(), H());
+    });
+})();
+</script>
+
+<script>
+// ── Quote form → Google Sheets ───────────────────────────
+// 1. Paste your deployed Apps Script URL here:
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOutcYFUA_AkhxwxosBfp_oQjcYOjGlazW1zE9uD5xaUZbyj8DqtKahRxzx0uUrphm/exec';
+// 2. Your Google Sheet (for your own reference — not shown to users):
+// https://docs.google.com/spreadsheets/d/1Rcq71aA5UXaBHB2twki3w9fbxDGce5QukpjW4RljzM8/edit
+
+(function () {
+    const form = document.getElementById('quote-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const btn = form.querySelector('button[type="submit"]');
+        btn.textContent = 'Sending…';
+        btn.disabled = true;
+
+        const payload = {
+            timestamp: new Date().toISOString(),
+            name:     document.getElementById('name').value,
+            email:    document.getElementById('email').value,
+            product:  document.getElementById('product').value,
+            units:    document.getElementById('units').value,
+            timeline: document.getElementById('timeline').value,
+            notes:    document.getElementById('notes').value,
+        };
+
+        try {
+            // GET with query params avoids the Apps Script redirect issue
+            // that silently drops POST bodies.
+            const qs = new URLSearchParams(payload).toString();
+            await fetch(APPS_SCRIPT_URL + '?' + qs, { mode: 'no-cors' });
+        } catch (_) {
+            // no-cors responses are opaque; fetch throws on network errors only.
+        }
+
+        form.closest('.form-inner').innerHTML = `
+            <div class="form-success">
+                <h3>Request sent ✓</h3>
+                <p>We'll review your request and get back to you within 48 hours.</p>
+            </div>`;
+    });
+})();
+</script>
+
+<script>
+// ── Floating background shapes ────────────────────────────
+(function () {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const GOLD = '#c8a96e';
-    const CREAM = '#f5f2eb';
+    const ACCENT = '#c9a052';
 
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
     function resize() {
-      const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+        canvas.width  = window.innerWidth  * DPR;
+        canvas.height = window.innerHeight * DPR;
+        canvas.style.width  = window.innerWidth  + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        ctx.scale(DPR, DPR);
     }
 
-    const boxes = [];
+    const shapes = [];
 
-    function spawnBox(randomY) {
-      const size = 24 + Math.random() * 38;
-      return {
-        x: Math.random() * canvas.width,
-        y: randomY ? Math.random() * canvas.height : canvas.height + size,
-        size,
-        vy: 0.4 + Math.random() * 0.5,
-        vx: (Math.random() - 0.5) * 0.25,
-        rot: Math.random() * Math.PI * 2,
-        vr: (Math.random() - 0.5) * 0.006,
-        alpha: 0.12 + Math.random() * 0.16,
-        color: Math.random() > 0.55 ? GOLD : CREAM,
-        type: Math.floor(Math.random() * 3)
-      };
+    function spawn(randomY) {
+        const size = 18 + Math.random() * 32;
+        return {
+            x:     Math.random() * canvas.width,
+            y:     randomY ? Math.random() * canvas.height : canvas.height + size,
+            size,
+            vy:    0.28 + Math.random() * 0.42,
+            vx:    (Math.random() - 0.5) * 0.18,
+            rot:   Math.random() * Math.PI * 2,
+            vr:    (Math.random() - 0.5) * 0.004,
+            alpha: 0.35 + Math.random() * 0.25,
+            type:  Math.floor(Math.random() * 3),
+        };
     }
 
-    function initBoxes() {
-      boxes.length = 0;
-      const count = Math.max(14, Math.floor(canvas.width / 55));
-      for (let i = 0; i < count; i++) boxes.push(spawnBox(true));
+    function init() {
+        shapes.length = 0;
+        const count = Math.max(10, Math.floor(canvas.width / 65));
+        for (let i = 0; i < count; i++) shapes.push(spawn(true));
     }
-
-    const conveyors = [0, 1, 2, 3].map(i => ({
-      yRatio: 0.18 + i * 0.2,
-      offset: Math.random() * 300,
-      speed: 0.55 + Math.random() * 0.5,
-      alpha: 0.055
-    }));
 
     function drawShape(b) {
-      ctx.save();
-      ctx.translate(b.x, b.y);
-      ctx.rotate(b.rot);
-      ctx.globalAlpha = b.alpha;
-      ctx.strokeStyle = b.color;
-      ctx.lineWidth = 1.2;
-      const s = b.size;
-
-      if (b.type === 0) {
-        ctx.strokeRect(-s/2, -s/2, s, s);
-        ctx.beginPath();
-        ctx.moveTo(-s/2, -s/2 + s*0.28);
-        ctx.lineTo(s/2, -s/2 + s*0.28);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, -s/2);
-        ctx.lineTo(0, -s/2 + s*0.28);
-        ctx.stroke();
-      } else if (b.type === 1) {
-        ctx.strokeRect(-s/2, -s/2, s, s);
-        ctx.beginPath();
-        ctx.moveTo(-s*0.15, -s/2);
-        ctx.lineTo(-s*0.15, s/2);
-        ctx.moveTo(s*0.15, -s/2);
-        ctx.lineTo(s*0.15, s/2);
-        ctx.stroke();
-      } else {
-        const w = s*0.46, h = s;
-        ctx.beginPath();
-        ctx.moveTo(-w*0.28, -h/2);
-        ctx.lineTo(w*0.28, -h/2);
-        ctx.lineTo(w*0.28, -h*0.34);
-        ctx.lineTo(w/2, -h*0.18);
-        ctx.lineTo(w/2, h/2);
-        ctx.lineTo(-w/2, h/2);
-        ctx.lineTo(-w/2, -h*0.18);
-        ctx.lineTo(-w*0.28, -h*0.34);
-        ctx.closePath();
-        ctx.stroke();
-      }
-      ctx.restore();
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.rot);
+        ctx.globalAlpha = b.alpha;
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth   = 1.5;
+        const s = b.size;
+        if (b.type === 0) {
+            // box with lid flap lines
+            ctx.strokeRect(-s/2, -s/2, s, s);
+            ctx.beginPath();
+            ctx.moveTo(-s/2, -s/2 + s*0.28); ctx.lineTo(s/2, -s/2 + s*0.28);
+            ctx.moveTo(0, -s/2);              ctx.lineTo(0, -s/2 + s*0.28);
+            ctx.stroke();
+        } else if (b.type === 1) {
+            // box with vertical dividers
+            ctx.strokeRect(-s/2, -s/2, s, s);
+            ctx.beginPath();
+            ctx.moveTo(-s*0.15, -s/2); ctx.lineTo(-s*0.15, s/2);
+            ctx.moveTo( s*0.15, -s/2); ctx.lineTo( s*0.15, s/2);
+            ctx.stroke();
+        } else {
+            // pouch / bag shape
+            const w = s*0.46, h = s;
+            ctx.beginPath();
+            ctx.moveTo(-w*0.28, -h/2); ctx.lineTo(w*0.28, -h/2);
+            ctx.lineTo(w*0.28, -h*0.34); ctx.lineTo(w/2, -h*0.18);
+            ctx.lineTo(w/2, h/2); ctx.lineTo(-w/2, h/2);
+            ctx.lineTo(-w/2, -h*0.18); ctx.lineTo(-w*0.28, -h*0.34);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        ctx.restore();
     }
 
     function loop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const l of conveyors) {
-        l.offset += l.speed;
-        ctx.save();
-        ctx.globalAlpha = l.alpha;
-        ctx.strokeStyle = GOLD;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([10, 20]);
-        ctx.lineDashOffset = -l.offset;
-        ctx.beginPath();
-        ctx.moveTo(0, l.yRatio * canvas.height);
-        ctx.lineTo(canvas.width, l.yRatio * canvas.height);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.restore();
-      }
-
-      for (let i = 0; i < boxes.length; i++) {
-        const b = boxes[i];
-        b.y -= b.vy;
-        b.x += b.vx;
-        b.rot += b.vr;
-        if (b.y < -b.size * 2) boxes[i] = spawnBox(false);
-        drawShape(b);
-      }
-
-      requestAnimationFrame(loop);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < shapes.length; i++) {
+            const b = shapes[i];
+            b.y -= b.vy; b.x += b.vx; b.rot += b.vr;
+            if (b.y < -b.size * 2) shapes[i] = spawn(false);
+            drawShape(b);
+        }
+        requestAnimationFrame(loop);
     }
 
-    window.addEventListener('resize', () => { resize(); initBoxes(); });
-
+    window.addEventListener('resize', () => { resize(); init(); });
     resize();
-    initBoxes();
+    init();
     loop();
-  </script>
+
+    // Hide canvas once hero scrolls out of view
+    const heroWrap = document.querySelector('.hero-wrap');
+    function syncCanvasVisibility() {
+        if (!heroWrap) return;
+        canvas.style.opacity = heroWrap.getBoundingClientRect().bottom > 0 ? '1' : '0';
+    }
+    window.addEventListener('scroll', syncCanvasVisibility, { passive: true });
+    syncCanvasVisibility();
+})();
+
+// ── Custom cursor ─────────────────────────────────────────
+(function () {
+    const el = document.getElementById('cursor');
+    if (!el) return;
+
+    // Only run on devices with a fine pointer (mouse)
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    let x = -100, y = -100;
+
+    document.addEventListener('mousemove', e => {
+        x = e.clientX; y = e.clientY;
+        el.style.transform = `translate(calc(${x}px - 50%), calc(${y}px - 50%))`;
+        el.classList.remove('is-hidden');
+    });
+
+    document.addEventListener('mouseleave', () => el.classList.add('is-hidden'));
+})();
+</script>
 
 </body>
 </html>
