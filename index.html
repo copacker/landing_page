@@ -905,7 +905,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOutcYFUA_Akhx
         canvas.height = window.innerHeight * DPR;
         canvas.style.width  = window.innerWidth  + 'px';
         canvas.style.height = window.innerHeight + 'px';
-        ctx.scale(DPR, DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
 
     const shapes = [];
