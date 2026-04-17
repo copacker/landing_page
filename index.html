@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>copacker — Contract Packaging for Growing Brands</title>
+    <title>copacker — Robotic Packing & Kitting for 3PLs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
@@ -98,7 +98,7 @@
         .pain-mark  { display: block; font-size: 40px; color: var(--accent); margin-bottom: 14px; line-height: 1; font-style: italic; }
 
         /* ── Section label ───────────────────────────────── */
-        .label { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 52px; display: block; }
+        .label { font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 52px; display: block; }
 
         /* ══════════════════════════════════════════════════
            BELT SECTION — Three.js 3D scene, scroll-driven
@@ -283,18 +283,20 @@
 <!-- ── Nav ──────────────────────────────────────────────── -->
 <nav>
     <a href="/" class="logo">copacker</a>
-    <a href="#quote" class="btn btn-dark">Get a quote</a>
+    <a href="https://calendly.com/copacker4/30min" target="_blank" class="btn btn-dark">Book a call</a>
 </nav>
 
 <!-- ── Hero ─────────────────────────────────────────────── -->
 <div class="hero-wrap">
 <section class="hero">
-    <h1>Finally, a co-packer that says <em>yes</em> to small&nbsp;runs.</h1>
-    <p>Contract packaging for CPG brands. Starting at 200 units. No setup fees. 2–3 week turnaround.</p>
-    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
-        <a href="#quote" class="btn btn-large">Tell us what you need &rarr;</a>
-        <span style="font-size:14px; color:var(--gray);">We'll get back to you within 48 hours</span>
+    <h1>Your packing <em>partner,</em> without the extra hires.</h1>
+    <p>Robotic packing and kitting for 3PLs. Built for small runs and easy to retask when your SKUs change.</p>
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <a href="https://calendly.com/copacker4/30min" target="_blank" class="btn btn-large">Book a call &rarr;</a>
+        <span style="font-size:14px; color:var(--gray);">or</span>
+        <a href="#quote" class="btn btn-dark">Tell us about your operation</a>
     </div>
+    <p style="font-size:14px; color:var(--gray); margin-top:16px;">We'll get back to you within 24 hours.</p>
 </section>
 </div>
 
@@ -303,9 +305,9 @@
 <!-- ── Pain ─────────────────────────────────────────────── -->
 <section class="pain">
     <div class="pain-inner">
-        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You called five co-packers. They all said your volume was too small.</div>
-        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You don't need 10,000 units. You need 300 to test the market.</div>
-        <div class="pain-item"><span class="pain-mark">&ldquo;</span>You've been hand-packing in your kitchen for six months. You're ready for the next step.</div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>Labor is your biggest cost center — and it keeps climbing. Turnover means you're retraining every 90 days.</div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>Traditional robots are expensive and rigid — built for one task, one product, one line. Change a SKU and you're calling an engineer.</div>
+        <div class="pain-item"><span class="pain-mark">&ldquo;</span>Volume just doubled. You don't have the floor space or the staff to keep up.</div>
     </div>
 </section>
 
@@ -315,8 +317,8 @@
 <div class="belt-scroll-outer">
 <section class="belt-section">
     <div class="belt-header">
-        <span class="label">What we handle</span>
-        <h2>It's all in the boxes.</h2>
+        <span class="label">What we automate</span>
+        <h2>Your floor, running itself.</h2>
     </div>
     <div class="belt-canvas-wrap">
         <canvas id="belt-canvas"></canvas>
@@ -324,22 +326,22 @@
             <div class="belt-card">
                 <div class="card-label">01 / 04</div>
                 <h3>Kitting &amp; Assembly</h3>
-                <p>We turn raw components into shelf-ready kits — pick, pack, and bundle at any scale.</p>
+                <p>The robot picks components, assembles kits, and closes boxes — the same job your team does today, at 3× the throughput. Built for runs as small as 50 units.</p>
             </div>
             <div class="belt-card">
                 <div class="card-label">02 / 04</div>
-                <h3>Labeling &amp; Compliance</h3>
-                <p>FDA-ready labels, barcoding, and co-man documentation. Every unit ships compliant.</p>
+                <h3>Labeling &amp; Verification</h3>
+                <p>Vision-guided label application with barcode scan on every unit. Zero mis-labels leaving your dock.</p>
             </div>
             <div class="belt-card">
                 <div class="card-label">03 / 04</div>
-                <h3>Fulfillment</h3>
-                <p>DTC and B2B shipping from our warehouse. Your product, on time, anywhere.</p>
+                <h3>Fulfillment Prep</h3>
+                <p>Sorted and packed to your outbound spec. The robot hands off to your existing dock flow — no rework required.</p>
             </div>
             <div class="belt-card">
                 <div class="card-label">04 / 04</div>
-                <h3>Custom Packaging</h3>
-                <p>Branded boxes, inserts, and sustainable materials. Unboxing that sells itself.</p>
+                <h3>Easy Retasking</h3>
+                <p>New SKU or packaging change? Reconfigure in hours — not the weeks it takes to retool a fixed industrial line or retrain a floor crew.</p>
             </div>
         </div>
         <div class="belt-fade belt-fade-l"></div>
@@ -354,14 +356,14 @@
 <!-- ── Services ─────────────────────────────────────────── -->
 <section class="services">
     <div class="services-inner">
-        <span class="label">What we handle</span>
+        <span class="label">What we automate</span>
         <div class="services-grid">
-            <div class="service-item"><h3>Gift sets &amp; kitting</h3><p>Multiple SKUs combined into a single retail-ready package. We handle the assembly.</p></div>
-            <div class="service-item"><h3>Specialty food packaging</h3><p>Pouches, jars, sachets, boxes — whatever format your product needs.</p></div>
-            <div class="service-item"><h3>Seasonal &amp; promo runs</h3><p>Holiday packaging, limited editions, launch quantities. No minimum commitment.</p></div>
-            <div class="service-item"><h3>Starting at 200 units</h3><p>No arbitrary minimums. Order what you actually need to test and learn.</p></div>
-            <div class="service-item"><h3>2–3 week turnaround</h3><p>From approved spec to product at your door. We don't sit on orders.</p></div>
-            <div class="service-item"><h3>No setup fees</h3><p>Fixed per-unit pricing. What we quote is what you pay — every time.</p></div>
+            <div class="service-item"><h3>Packing &amp; kitting</h3><p>Automate the repetitive, high-volume tasks on your line. Fewer errors, consistent output, and your team freed up for work that actually needs human judgment.</p></div>
+            <div class="service-item"><h3>Pick &amp; place</h3><p>High-mix, low-volume SKUs handled with vision-guided arms. No custom fixtures required.</p></div>
+            <div class="service-item"><h3>Label application</h3><p>Inline labeling synced to your WMS. Every unit scanned and confirmed before it moves downstream.</p></div>
+            <div class="service-item"><h3>Built for small runs</h3><p>50 to 5,000 units per SKU. No six-figure retooling when your client's product changes — our bots are designed to switch tasks fast.</p></div>
+            <div class="service-item"><h3>WMS integration</h3><p>We connect to your existing warehouse management system. No rip-and-replace required.</p></div>
+            <div class="service-item"><h3>Flexible pricing</h3><p>Per-unit or monthly subscription. Most operations see ROI within 9–14 months.</p></div>
         </div>
     </div>
 </section>
@@ -373,9 +375,9 @@
     <div class="how-inner">
         <span class="label">How it works</span>
         <div class="steps">
-            <div class="step"><div class="step-num">01</div><h3>Tell us about your product</h3><p>Fill out the form below. Takes 3 minutes. Tell us what you're packing and how many units you need.</p></div>
-            <div class="step"><div class="step-num">02</div><h3>We send a quote in 48 hours</h3><p>Priced per unit, no hidden fees. If we can't do it, we'll say so and refer you to someone who can.</p></div>
-            <div class="step"><div class="step-num">03</div><h3>We pack. You ship.</h3><p>Your product arrives retail-ready at your door. Ready to sell on day one.</p></div>
+            <div class="step"><div class="step-num">01</div><h3>Tell us about your operation</h3><p>Fill out the form below. Takes 3 minutes. Tell us what you're packing, your daily volumes, and the biggest pain on the line.</p></div>
+            <div class="step"><div class="step-num">02</div><h3>We get back to you in 48 hours</h3><p>We'll schedule a call to understand your operation — then walk your facility if it makes sense. No pressure, no sales pitch.</p></div>
+            <div class="step"><div class="step-num">03</div><h3>Deploy. Watch throughput climb.</h3><p>We install, integrate with your WMS, and go live. Your team supervises. The robot handles the repetitive work.</p></div>
         </div>
     </div>
 </section>
@@ -387,15 +389,15 @@
     <div class="trust-inner">
         <div>
             <span class="label">Who we are</span>
-            <p class="founder-note">I kept watching small brands get turned away by facilities that weren't built for them. Every co-packer I spoke to had minimums designed for brands doing 50,000 units a year. The brands doing 500 — the ones who needed help the most — were sent away.<br><br>copacker is built for those brands.<span class="founder-name">— The copacker team</span></p>
+            <p class="founder-note">Every 3PL operator we talked to had looked at robotics and walked away. The systems were built for automotive factories — $2M price tags, fixed configurations, and 18-month deployments. Completely wrong for a facility running 20 different SKUs at 500 units a pop.<br><br>We built copacker for operations like that. Small runs, fast changeovers, and a robot your team can actually supervise without an engineering degree.<span class="founder-name">— The copacker team</span></p>
         </div>
         <div>
             <span class="label">Our guarantees</span>
             <div class="guarantees">
-                <div class="guarantee"><h4>48-hour response</h4><p>If we can't pack your product, we'll tell you within 48 hours and point you to someone who can.</p></div>
-                <div class="guarantee"><h4>Fixed pricing</h4><p>What we quote is what you pay. No setup fees, no surprise charges.</p></div>
-                <div class="guarantee"><h4>No commitment</h4><p>First run, no strings attached. We earn your repeat business by doing good work.</p></div>
-                <div class="guarantee"><h4>Real people</h4><p>You'll talk to a human, not a ticketing system. Every time you reach out.</p></div>
+                <div class="guarantee"><h4>48-hour response</h4><p>We'll follow up within 48 hours to schedule a call and understand your operation.</p></div>
+                <div class="guarantee"><h4>Transparent ROI</h4><p>We show you the unit economics before you commit — cost per unit, payback period, and the assumptions behind both.</p></div>
+                <div class="guarantee"><h4>No long-term lock-in</h4><p>Month-to-month after deployment. We earn renewal by hitting your throughput targets.</p></div>
+                <div class="guarantee"><h4>Real people</h4><p>A dedicated ops contact available by phone for any production issue. Not a ticketing system.</p></div>
             </div>
         </div>
     </div>
@@ -406,28 +408,13 @@
 <!-- ── Quote Form ────────────────────────────────────────── -->
 <section class="form-section" id="quote">
     <div class="form-inner">
-        <h2>Get a quote.</h2>
-        <p>We'll review your request and get back to you within 48 hours.</p>
+        <h2>Start the conversation.</h2>
+        <p>We'll get back to you within 24 hours to schedule a conversation.</p>
         <form id="quote-form">
             <div class="form-group"><label for="name">Your name</label><input id="name" type="text" placeholder="Jane Smith" required></div>
-            <div class="form-group"><label for="email">Email</label><input id="email" type="email" placeholder="jane@yourbrand.com" required></div>
-            <div class="form-group"><label for="product">What's your product?</label><input id="product" type="text" placeholder="e.g. Organic granola in 8oz kraft pouches" required></div>
-            <div class="form-group">
-                <label for="units">Units for your first run</label>
-                <select id="units" required>
-                    <option value="" disabled selected>Select a range</option>
-                    <option>200–500 units</option><option>500–1,000 units</option><option>1,000–5,000 units</option><option>5,000+ units</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="timeline">How soon do you need it?</label>
-                <select id="timeline" required>
-                    <option value="" disabled selected>Select a timeframe</option>
-                    <option>Within 2 weeks</option><option>Within a month</option><option>1–3 months out</option><option>Just exploring</option>
-                </select>
-            </div>
-            <div class="form-group"><label for="notes">Anything specific we should know?</label><textarea id="notes" placeholder="Special packaging requirements, certifications, materials, etc."></textarea></div>
-            <button type="submit" class="btn-submit">Send my request &rarr;</button>
+            <div class="form-group"><label for="email">Work email</label><input id="email" type="email" placeholder="jane@your3pl.com" required></div>
+            <div class="form-group"><label for="product">What are you automating?</label><textarea id="product" placeholder="e.g. Gift set kitting, e-commerce pick &amp; pack, case packing" required></textarea></div>
+            <button type="submit" class="btn-submit">Get in touch &rarr;</button>
         </form>
     </div>
 </section>
@@ -437,7 +424,7 @@
 <!-- ── Footer ────────────────────────────────────────────── -->
 <footer>
     <div class="footer-logo">copacker</div>
-    <div class="footer-right"><a href="mailto:hello@copacker.org">hello@copacker.org</a> &nbsp;&middot;&nbsp; San Mateo, CA</div>
+    <div class="footer-right"><a href="mailto:hello@copacker.org">hello@copacker.org</a> &nbsp;&middot;&nbsp; <a href="tel:+14085969198">+1 (408) 596-9198</a> &nbsp;&middot;&nbsp; San Mateo, CA</div>
 </footer>
 
 <!-- ── Three.js CDN ──────────────────────────────────────── -->
@@ -868,9 +855,6 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOutcYFUA_Akhx
             name:     document.getElementById('name').value,
             email:    document.getElementById('email').value,
             product:  document.getElementById('product').value,
-            units:    document.getElementById('units').value,
-            timeline: document.getElementById('timeline').value,
-            notes:    document.getElementById('notes').value,
         };
 
         try {
